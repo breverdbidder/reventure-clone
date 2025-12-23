@@ -20,113 +20,135 @@ jobs:
           
       - name: Render Reventure.app to Static HTML
         run: |
-          node << 'EOF'
+          node << 'SCRIPT'
           const { chromium } = require('playwright');
           const fs = require('fs');
-          const path = require('path');
           
           (async () => {
-            const browser = await chromium.launch();
-            const page = await browser.newPage();
+            const browser = await chromium.launch({ headless: true });
+            const context = await browser.newContext({
+              viewport: { width: 1920, height: 1080 },
+              userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            });
+            const page = await context.newPage();
             
-            // Navigate and wait for full render
+            console.log('Navigating to reventure.app...');
+            
+            // Use domcontentloaded instead of networkidle
             await page.goto('https://www.reventure.app/', { 
-              waitUntil: 'networkidle',
-              timeout: 60000 
+              waitUntil: 'domcontentloaded',
+              timeout: 30000 
             });
             
-            // Wait extra for React hydration
-            await page.waitForTimeout(5000);
+            console.log('Page loaded, waiting for content...');
+            
+            // Wait for specific elements to appear
+            try {
+              await page.waitForSelector('h1', { timeout: 15000 });
+              console.log('Found h1');
+            } catch (e) {
+              console.log('No h1 found, continuing...');
+            }
+            
+            // Extra wait for JS rendering
+            await page.waitForTimeout(10000);
             
             // Get rendered HTML
             const html = await page.content();
-            
-            // Save to file
             fs.writeFileSync('index.html', html);
-            console.log('Saved rendered HTML:', html.length, 'bytes');
+            console.log('Saved HTML:', html.length, 'bytes');
             
-            // Extract and download images
+            // Check what we got
+            const bodyText = await page.evaluate(() => document.body.innerText.substring(0, 500));
+            console.log('Body preview:', bodyText);
+            
+            // Extract images
             const images = await page.evaluate(() => {
-              const imgs = [];
-              document.querySelectorAll('img').forEach(img => {
-                if (img.src && !img.src.startsWith('data:')) {
-                  imgs.push({ src: img.src, alt: img.alt });
-                }
-              });
-              return imgs;
+              return Array.from(document.querySelectorAll('img')).map(img => ({
+                src: img.src,
+                alt: img.alt
+              })).filter(i => i.src && !i.src.startsWith('data:'));
             });
-            console.log('Found images:', images.length);
+            console.log('Found', images.length, 'images');
             fs.writeFileSync('images.json', JSON.stringify(images, null, 2));
             
-            // Take screenshot
+            // Screenshot
             await page.screenshot({ path: 'screenshot.png', fullPage: true });
+            console.log('Screenshot saved');
             
             await browser.close();
+            console.log('Done!');
           })();
-          EOF
+          SCRIPT
           
-      - name: Process HTML for Static Hosting
+      - name: Build Static Site
         run: |
-          node << 'EOF'
-          const fs = require('fs');
-          
-          let html = fs.readFileSync('index.html', 'utf8');
-          
-          // Remove scripts that require server
-          html = html.replace(/<script[^>]*src="[^"]*_next[^"]*"[^>]*><\/script>/g, '');
-          
-          // Update image paths
-          html = html.replace(/src="https:\/\/www\.reventure\.app\//g, 'src="/');
-          
-          // Add base tag
-          html = html.replace('<head>', '<head>\n<base href="/">');
-          
-          fs.writeFileSync('index.html', html);
-          console.log('Processed HTML for static hosting');
-          EOF
-          
-      - name: Download Assets
-        run: |
-          mkdir -p assets/forecast assets/landing assets/icons
-          
-          # Download key images from images.json
-          node << 'EOF'
+          # Download images
+          mkdir -p assets
+          node << 'SCRIPT'
           const fs = require('fs');
           const https = require('https');
+          const http = require('http');
           const path = require('path');
           
           const images = JSON.parse(fs.readFileSync('images.json', 'utf8'));
           
-          images.forEach((img, i) => {
-            if (img.src.includes('reventure.app')) {
-              const url = new URL(img.src);
-              const filepath = 'assets' + url.pathname;
-              const dir = path.dirname(filepath);
-              
-              if (!fs.existsSync(dir)) {
-                fs.mkdirSync(dir, { recursive: true });
-              }
-              
-              console.log('Downloading:', url.pathname);
-              
-              https.get(img.src, (res) => {
-                const file = fs.createWriteStream(filepath);
+          function download(url, dest) {
+            return new Promise((resolve, reject) => {
+              const protocol = url.startsWith('https') ? https : http;
+              const file = fs.createWriteStream(dest);
+              protocol.get(url, (res) => {
                 res.pipe(file);
-              }).on('error', console.error);
+                file.on('finish', () => {
+                  file.close();
+                  resolve();
+                });
+              }).on('error', (err) => {
+                fs.unlink(dest, () => {});
+                reject(err);
+              });
+            });
+          }
+          
+          (async () => {
+            for (const img of images.slice(0, 50)) {
+              try {
+                const url = new URL(img.src);
+                const filename = path.basename(url.pathname) || 'image.png';
+                const dest = 'assets/' + filename;
+                
+                if (!fs.existsSync(dest)) {
+                  console.log('Downloading:', filename);
+                  await download(img.src, dest);
+                }
+              } catch (e) {
+                console.log('Skip:', img.src.substring(0, 50), e.message);
+              }
             }
-          });
-          EOF
+          })();
+          SCRIPT
           
-          # Download known assets
-          curl -s -o assets/forecast/reventure-app-logo.avif https://www.reventure.app/assets/forecast/reventure-app-logo.avif || true
-          curl -s -o assets/app-preview-screenshot.webp https://www.reventure.app/app-preview-screenshot.webp || true
+          # Process HTML to make it static
+          node << 'SCRIPT'
+          const fs = require('fs');
+          let html = fs.readFileSync('index.html', 'utf8');
           
-      - name: Commit rendered files
+          // Remove Next.js scripts that need server
+          html = html.replace(/<script[^>]*_next[^>]*><\/script>/g, '');
+          
+          // Fix asset paths
+          html = html.replace(/https:\/\/www\.reventure\.app\/assets\//g, '/assets/');
+          
+          fs.writeFileSync('index.html', html);
+          console.log('Processed HTML');
+          SCRIPT
+          
+      - name: Commit and Deploy
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add -A
-          git commit -m "feat: Add rendered static HTML from Playwright" || echo "No changes"
+          git commit -m "feat: Rendered static HTML from Playwright" || echo "No changes"
           git push
           
       - name: Upload artifacts
