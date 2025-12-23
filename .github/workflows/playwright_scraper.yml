@@ -1,0 +1,140 @@
+name: Playwright Scraper - Capture Rendered Content
+
+on:
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install Playwright
+        run: |
+          npm init -y
+          npm install playwright
+          npx playwright install chromium
+          
+      - name: Scrape Rendered Page
+        run: |
+          node << 'SCRIPT'
+          const { chromium } = require('playwright');
+          const fs = require('fs');
+          
+          (async () => {
+            console.log('🚀 Launching browser...');
+            const browser = await chromium.launch();
+            const page = await browser.newPage();
+            
+            // Set viewport
+            await page.setViewportSize({ width: 1920, height: 1080 });
+            
+            console.log('📄 Navigating to reventure.app...');
+            await page.goto('https://www.reventure.app/', { 
+              waitUntil: 'networkidle',
+              timeout: 60000 
+            });
+            
+            // Wait for content to render
+            await page.waitForTimeout(5000);
+            
+            // Extract __NEXT_DATA__ if present
+            const nextData = await page.evaluate(() => {
+              const script = document.getElementById('__NEXT_DATA__');
+              return script ? script.textContent : null;
+            });
+            
+            if (nextData) {
+              console.log('✅ Found __NEXT_DATA__');
+              fs.writeFileSync('next_data.json', nextData);
+              
+              // Parse and extract useful data
+              const data = JSON.parse(nextData);
+              console.log('Page:', data.page);
+              console.log('Build ID:', data.buildId);
+            }
+            
+            // Get fully rendered HTML
+            const html = await page.content();
+            fs.writeFileSync('rendered_index.html', html);
+            console.log('✅ Saved rendered HTML');
+            
+            // Take screenshot
+            await page.screenshot({ path: 'screenshot.png', fullPage: true });
+            console.log('✅ Saved screenshot');
+            
+            // Extract all CSS
+            const styles = await page.evaluate(() => {
+              const allStyles = [];
+              document.querySelectorAll('style').forEach(s => allStyles.push(s.textContent));
+              return allStyles.join('\n');
+            });
+            fs.writeFileSync('extracted_styles.css', styles);
+            
+            // Extract inline scripts data
+            const scripts = await page.evaluate(() => {
+              const data = {};
+              // Get any global state
+              if (window.__NEXT_DATA__) data.nextData = window.__NEXT_DATA__;
+              if (window.__REDUX_STATE__) data.reduxState = window.__REDUX_STATE__;
+              return data;
+            });
+            fs.writeFileSync('app_state.json', JSON.stringify(scripts, null, 2));
+            
+            await browser.close();
+            console.log('🎉 Scraping complete!');
+          })();
+          SCRIPT
+          
+      - name: Build Static Site
+        run: |
+          mkdir -p dist
+          
+          # Create a proper static HTML from rendered content
+          node << 'SCRIPT'
+          const fs = require('fs');
+          
+          // Read rendered HTML
+          let html = fs.readFileSync('rendered_index.html', 'utf-8');
+          
+          // Read extracted styles
+          const styles = fs.readFileSync('extracted_styles.css', 'utf-8');
+          
+          // Inject styles inline to avoid external dependencies
+          html = html.replace('</head>', `<style>${styles}</style></head>`);
+          
+          // Remove Next.js hydration scripts (they'll fail without the backend)
+          html = html.replace(/<script[^>]*\/_next\/static[^>]*><\/script>/g, '');
+          
+          // Save to dist
+          fs.writeFileSync('dist/index.html', html);
+          console.log('✅ Created static dist/index.html');
+          SCRIPT
+          
+          # Copy screenshot
+          cp screenshot.png dist/
+          
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: scraped-content
+          path: |
+            rendered_index.html
+            next_data.json
+            extracted_styles.css
+            app_state.json
+            screenshot.png
+            dist/
+          retention-days: 30
+          
+      - name: Deploy to Cloudflare
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: reventure-clone
+          directory: dist
