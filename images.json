@@ -1,0 +1,166 @@
+[
+  {
+    "src": "https://www.reventure.app/_next/image?url=%2F_next%2Fstatic%2Fmedia%2FreventureApp_logo.2d57671d.png&w=384&q=75",
+    "alt": "Reventure App"
+  },
+  {
+    "src": "https://www.reventure.app/_next/image?url=%2Fapple-play-store.svg&w=96&q=75",
+    "alt": "Apple Store"
+  },
+  {
+    "src": "https://www.reventure.app/_next/image?url=%2Fgoogle-play-store.svg&w=96&q=75",
+    "alt": "Google Play"
+  },
+  {
+    "src": "https://www.reventure.app/assets/landing-page/activity.svg",
+    "alt": "Track home price and inventory trends in your city and ZIP Code"
+  },
+  {
+    "src": "https://www.reventure.app/assets/landing-page/graph.svg",
+    "alt": "Analyze how much Home Prices can increase or decline in every city in America"
+  },
+  {
+    "src": "https://www.reventure.app/assets/landing-page/combined-shape.svg",
+    "alt": "Find new cities and neighborhoods to invest in across 30,000 zip codes"
+  },
+  {
+    "src": "https://www.reventure.app/assets/landing-page/add-user.svg",
+    "alt": "Create a Free Account to access real-time Housing Data"
+  },
+  {
+    "src": "https://www.reventure.app/assets/landing-page/historical-housing-data.png",
+    "alt": "Historical Housing Data"
+  },
+  {
+    "src": "https://www.reventure.app/assets/landing-page/home-price-forcast.webp",
+    "alt": "Home Price Forecast"
+  },
+  {
+    "src": "https://www.reventure.app/assets/landing-page/intractive-map.webp",
+    "alt": "Interactive Maps"
+  },
+  {
+    "src": "https://www.reventure.app/_next/image?url=%2Fassets%2Flanding-page%2Fnext-hot-market.webp&w=640&q=75",
+    "alt": "Find the next Hot Market"
+  },
+  {
+    "src": "https://www.reventure.app/assets/landing-page/cencus-icon.svg",
+    "alt": "US Census Bureau"
+  },
+  {
+    "src": "https://www.reventure.app/assets/landing-page/bureau-icon.svg",
+    "alt": "Bureau of Labor Statistics"
+  },
+  {
+    "src": "https://www.reventure.app/assets/landing-page/realtor-icon.svg",
+    "alt": "Realtor.com"
+  },
+  {
+    "src": "https://www.reventure.app/assets/landing-page/zillow-icon.svg",
+    "alt": "Zillow"
+  },
+  {
+    "src": "https://www.reventure.app/_next/image?url=%2Fassets%2Flanding-page%2Fsignup.avif&w=3840&q=75",
+    "alt": "Sign Up"
+  },
+  {
+    "src": "https://www.reventure.app/_next/image?url=%2Fassets%2Flanding-page%2Fselect-market.webp&w=3840&q=75",
+    "alt": "Select Your Market"
+  },
+  {
+    "src": "https://www.reventure.app/_next/image?url=%2Fassets%2Flanding-page%2Fanalyze-data-overlay.webp&w=640&q=75",
+    "alt": ""
+  },
+  {
+    "src": "https://www.reventure.app/_next/image?url=%2Fassets%2Flanding-page%2Fanalyze-data.webp&w=3840&q=75",
+    "alt": "Analyze Data"
+  },
+  {
+    "src": "https://www.reventure.app/_next/image?url=%2Fassets%2Flanding-page%2Fdata-driven-real-state.jpg&w=3840&q=75",
+    "alt": "Make data driven real estate decisions"
+  },
+  {
+    "src": "https://www.reventure.app/assets/landing-page/union.svg",
+    "alt": ""
+  },
+  {
+    "src": "https://www.reventure.app/assets/landing-page/union-1.svg",
+    "alt": ""
+  },
+  {
+    "src": "https://www.reventure.app/assets/landing-page/insider-icon.avif",
+    "alt": "Business Insider"
+  },
+  {
+    "src": "https://www.reventure.app/assets/landing-page/Washington-Post-Color.avif",
+    "alt": "The Washington Post"
+  },
+  {
+    "src": "https://www.reventure.app/assets/landing-page/yahoo-finance-icon.avif",
+    "alt": "Yahoo Finance"
+  },
+  {
+    "src": "https://www.reventure.app/assets/landing-page/wall-street-journal-icon.svg",
+    "alt": "The Wall Street Journal"
+  },
+  {
+    "src": "https://www.reventure.app/_next/image?url=https%3A%2F%2Freventureapp.blog%2Fwp-content%2Fuploads%2F2025%2F12%2FScreenshot-2025-12-15-182935.png&w=3840&q=75",
+    "alt": "Why Mortgage Rates have minimal impact Home Prices (1890-2025 data)"
+  },
+  {
+    "src": "https://www.reventure.app/_next/image?url=https%3A%2F%2Freventureapp.blog%2Fwp-content%2Fuploads%2F2025%2F12%2FG7f9_2NXEAA_Gta.jpg&w=3840&q=75",
+    "alt": "The lock-in effect for mortgage rates is easing in late 2025, and by 2026, it could flip."
+  },
+  {
+    "src": "https://www.reventure.app/_next/image?url=https%3A%2F%2Freventureapp.blog%2Fwp-content%2Fuploads%2F2025%2F12%2FScreenshot-2025-12-02-170939.png&w=3840&q=75",
+    "alt": "Reventure's housing market forecasts correctly predicted the price dispersion in 2025 across metro areas."
+  },
+  {
+    "src": "https://www.reventure.app/_next/image?url=https%3A%2F%2Freventureapp.blog%2Fwp-content%2Fuploads%2F2025%2F11%2Fintro.jpg&w=3840&q=75",
+    "alt": "The long-term birth to death ratio in America will have a big impact on U.S. Housing Market."
+  },
+  {
+    "src": "https://www.reventure.app/_next/image?url=https%3A%2F%2Freventureapp.blog%2Fwp-content%2Fuploads%2F2025%2F11%2Fnewlywed-couple-standing-in-front-yard-of-their-ne-2025-03-18-19-08-50-utc.jpg&w=3840&q=75",
+    "alt": "Why the 50-Year Mortgage could be cheaper than renting"
+  },
+  {
+    "src": "https://www.reventure.app/_next/image?url=https%3A%2F%2Freventureapp.blog%2Fwp-content%2Fuploads%2F2025%2F11%2Fstages-of-residential-home-construction-2024-12-04-20-25-57-utc.jpeg&w=3840&q=75",
+    "alt": "Is the U.S. Housing Market officially in a Recession?"
+  },
+  {
+    "src": "https://www.reventure.app/_next/image?url=https%3A%2F%2Freventureapp.blog%2Fwp-content%2Fuploads%2F2025%2F11%2FZillow-Reventure-App-Data-Reveal-the-10-Most-Overpriced-U.S.-Counties-in-2025-vs.-Rent.jpg&w=3840&q=75",
+    "alt": "Zillow & Reventure App Data Reveal the 10 Most Overpriced U.S. Counties in 2025 (vs. Rent)"
+  },
+  {
+    "src": "https://www.reventure.app/_next/image?url=https%3A%2F%2Freventureapp.blog%2Fwp-content%2Fuploads%2F2025%2F11%2FAirbnbs-Collapse-Is-Spreading-to-the-Housing-Market.jpg&w=3840&q=75",
+    "alt": "Airbnb’s Collapse Is Spreading to the Housing Market"
+  },
+  {
+    "src": "https://www.reventure.app/_next/image?url=https%3A%2F%2Freventureapp.blog%2Fwp-content%2Fuploads%2F2025%2F11%2Fnew-york-city-skyline-2024-11-26-21-54-59-utc.jpg&w=3840&q=75",
+    "alt": "Will NYC&#8217;s new mayor Mamdani cause a mass housing market exodus?"
+  },
+  {
+    "src": "https://www.reventure.app/_next/image?url=%2F_next%2Fstatic%2Fmedia%2FLightLogo.8733796f.svg&w=384&q=75",
+    "alt": "Reventure logo"
+  },
+  {
+    "src": "https://www.reventure.app/_next/image?url=%2F_next%2Fstatic%2Fmedia%2FTwitter.014dcd77.svg&w=64&q=75",
+    "alt": "twitter"
+  },
+  {
+    "src": "https://www.reventure.app/_next/image?url=%2F_next%2Fstatic%2Fmedia%2FInstagram.c809300c.svg&w=64&q=75",
+    "alt": "instagram"
+  },
+  {
+    "src": "https://www.reventure.app/_next/image?url=%2F_next%2Fstatic%2Fmedia%2FYoutube.231ac35b.svg&w=64&q=75",
+    "alt": "youtube"
+  },
+  {
+    "src": "https://www.reventure.app/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fmail.5991b18e.svg&w=64&q=75",
+    "alt": "Mail"
+  },
+  {
+    "src": "https://www.reventure.app/_next/image?url=%2F_next%2Fstatic%2Fmedia%2FLocation.31f8472c.svg&w=64&q=75",
+    "alt": "Location"
+  }
+]
