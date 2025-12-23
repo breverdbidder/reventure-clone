@@ -1,0 +1,141 @@
+name: Render Static Site
+
+on:
+  workflow_dispatch:
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install Playwright
+        run: |
+          npm install playwright
+          npx playwright install chromium
+          
+      - name: Render Reventure.app to Static HTML
+        run: |
+          node << 'EOF'
+          const { chromium } = require('playwright');
+          const fs = require('fs');
+          const path = require('path');
+          
+          (async () => {
+            const browser = await chromium.launch();
+            const page = await browser.newPage();
+            
+            // Navigate and wait for full render
+            await page.goto('https://www.reventure.app/', { 
+              waitUntil: 'networkidle',
+              timeout: 60000 
+            });
+            
+            // Wait extra for React hydration
+            await page.waitForTimeout(5000);
+            
+            // Get rendered HTML
+            const html = await page.content();
+            
+            // Save to file
+            fs.writeFileSync('index.html', html);
+            console.log('Saved rendered HTML:', html.length, 'bytes');
+            
+            // Extract and download images
+            const images = await page.evaluate(() => {
+              const imgs = [];
+              document.querySelectorAll('img').forEach(img => {
+                if (img.src && !img.src.startsWith('data:')) {
+                  imgs.push({ src: img.src, alt: img.alt });
+                }
+              });
+              return imgs;
+            });
+            console.log('Found images:', images.length);
+            fs.writeFileSync('images.json', JSON.stringify(images, null, 2));
+            
+            // Take screenshot
+            await page.screenshot({ path: 'screenshot.png', fullPage: true });
+            
+            await browser.close();
+          })();
+          EOF
+          
+      - name: Process HTML for Static Hosting
+        run: |
+          node << 'EOF'
+          const fs = require('fs');
+          
+          let html = fs.readFileSync('index.html', 'utf8');
+          
+          // Remove scripts that require server
+          html = html.replace(/<script[^>]*src="[^"]*_next[^"]*"[^>]*><\/script>/g, '');
+          
+          // Update image paths
+          html = html.replace(/src="https:\/\/www\.reventure\.app\//g, 'src="/');
+          
+          // Add base tag
+          html = html.replace('<head>', '<head>\n<base href="/">');
+          
+          fs.writeFileSync('index.html', html);
+          console.log('Processed HTML for static hosting');
+          EOF
+          
+      - name: Download Assets
+        run: |
+          mkdir -p assets/forecast assets/landing assets/icons
+          
+          # Download key images from images.json
+          node << 'EOF'
+          const fs = require('fs');
+          const https = require('https');
+          const path = require('path');
+          
+          const images = JSON.parse(fs.readFileSync('images.json', 'utf8'));
+          
+          images.forEach((img, i) => {
+            if (img.src.includes('reventure.app')) {
+              const url = new URL(img.src);
+              const filepath = 'assets' + url.pathname;
+              const dir = path.dirname(filepath);
+              
+              if (!fs.existsSync(dir)) {
+                fs.mkdirSync(dir, { recursive: true });
+              }
+              
+              console.log('Downloading:', url.pathname);
+              
+              https.get(img.src, (res) => {
+                const file = fs.createWriteStream(filepath);
+                res.pipe(file);
+              }).on('error', console.error);
+            }
+          });
+          EOF
+          
+          # Download known assets
+          curl -s -o assets/forecast/reventure-app-logo.avif https://www.reventure.app/assets/forecast/reventure-app-logo.avif || true
+          curl -s -o assets/app-preview-screenshot.webp https://www.reventure.app/app-preview-screenshot.webp || true
+          
+      - name: Commit rendered files
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add -A
+          git commit -m "feat: Add rendered static HTML from Playwright" || echo "No changes"
+          git push
+          
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: rendered-site
+          path: |
+            index.html
+            screenshot.png
+            images.json
+            assets/
+          retention-days: 30
